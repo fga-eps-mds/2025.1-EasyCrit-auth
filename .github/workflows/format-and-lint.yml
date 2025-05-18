@@ -17,9 +17,7 @@ jobs:
           python-version: '3.12'
 
       - name: 🎨 Ruff format
-        run: |
-          pip install -r requirements.txt
-          ruff format --check .
+        run: pip install -r requirements.txt && ruff format --check .
 
       - name: ❌ Em caso de falha
         if: failure()
@@ -39,10 +37,8 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: 🛁 Ruff check
-        run: |
-          pip install -r requirements.txt
-          ruff check .
+      - name: 🛁  Ruff check
+        run: pip install -r requirements.txt && ruff check .
 
       - name: ❌ Em caso de falha
         if: failure()
