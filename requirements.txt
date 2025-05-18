@@ -5,3 +5,4 @@ sqlalchemy
 databases
 pytest
 python-dotenv
+ruff
