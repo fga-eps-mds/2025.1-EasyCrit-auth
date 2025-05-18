@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
 # adicionar CORS
-origins = "*"  # Alterar para dominios específicos em produção
+origins = '*'  # Alterar para dominios específicos em produção
 
 app.add_middleware(
   CORSMiddleware,
@@ -15,6 +15,6 @@ app.add_middleware(
 )
 
 
-@app.get("/")
+@app.get('/')
 def read_root():
-  return {"message": "Bem vindo à API de autenticação!"}
+  return {'message': 'Bem vindo à API de autenticação!'}
