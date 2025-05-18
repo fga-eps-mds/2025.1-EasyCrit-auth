@@ -2,7 +2,7 @@ name: format & lint
 on: [push]
 
 jobs:
-  ruff format:
+  Format:
     runs-on: ubuntu-latest
     steps:
       - name: 🖌️ Analise de estilo de código
@@ -17,13 +17,15 @@ jobs:
           python-version: '3.12'
 
       - name: 🎨 Ruff format
-        run: pip install -r requirements.txt && ruff format --check .
+        run: |
+          pip install -r requirements.txt
+          ruff format --check .
 
       - name: ❌ Em caso de falha
         if: failure()
         run: echo "🚫 O ruff encontrou erros de estilo" && echo "Use o comando 'ruff format' para corrigi-los automaticamente"
 
-  ruff check:
+  Check:
     runs-on: ubuntu-latest
     steps:
       - name: 🧼 Analise estática de código
@@ -38,7 +40,9 @@ jobs:
           python-version: '3.12'
 
       - name: 🛁  Ruff check
-        run: pip install -r requirements.txt && ruff check .
+        run: |
+          pip install -r requirements.txt
+          ruff check .
 
       - name: ❌ Em caso de falha
         if: failure()
