@@ -8,14 +8,14 @@ load_dotenv()
 app = FastAPI()
 
 # adicionar CORS
-origins = '*'  # Alterar para dominios específicos em produção
+origins = "*"  # Alterar para dominios específicos em produção
 
 app.add_middleware(
-  CORSMiddleware,
-  allow_origins=origins,
-  allow_credentials=True,
-  allow_methods=['*'],
-  allow_headers=['*'],
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(api_router)
