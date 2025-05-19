@@ -1,9 +1,9 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
-from app.schemas import UserSchema
-from app.models import User
-from app.database.database import get_db, create_tables
+from app.routers.main import api_router
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI()
 
@@ -18,24 +18,4 @@ app.add_middleware(
   allow_headers=['*'],
 )
 
-# Criar tabelas ao iniciar a aplicação
-create_tables()
-
-@app.get('/')
-def read_root():
-  return {'message': 'Bem vindo à API de autenticação!'}
-
-# Cria um novo usuário
-@app.post('/users') 
-def create_user(user: UserSchema, db: Session = Depends(get_db)):
-  db_user = User(
-    username=user.username,
-    email=user.email,
-    password=user.password,
-  )
-  db.add(db_user)
-  db.commit()
-  db.refresh(db_user)
-  return db_user
-
-
+app.include_router(api_router)
