@@ -4,7 +4,6 @@ from app.models import User
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from fastapi import Depends
 
 router = APIRouter(prefix='/users', tags=['users'])
 
