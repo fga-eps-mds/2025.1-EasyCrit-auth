@@ -1,5 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.routers.main import api_router
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI()
 
@@ -14,7 +18,4 @@ app.add_middleware(
   allow_headers=['*'],
 )
 
-
-@app.get('/')
-def read_root():
-  return {'message': 'Bem vindo à API de autenticação!'}
+app.include_router(api_router)
