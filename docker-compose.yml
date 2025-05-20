@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: easycrit
+      POSTGRES_PASSWORD: easycrit123
+      POSTGRES_DB: easycrit_auth
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    command: uvicorn app.main:app --host 0.0.0.0 --port ${AUTH_PORT:-8000} --reload
+    volumes:
+      - .:/app
+    ports:
+      - "${AUTH_PORT:-8000}:${AUTH_PORT:-8000}"
+    environment:
+      - DATABASE_URL=postgresql://easycrit:easycrit123@db:5432/easycrit_auth
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
