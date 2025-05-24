@@ -40,7 +40,9 @@ def get_users(db: Session = Depends(get_db), credentials: HTTPAuthorizationCrede
 
 # get by id
 @router.get('/{user_id}', response_model=UserList)
-def get_user_id(user_id: int, db: Session = Depends(get_db), credentials: HTTPAuthorizationCredentials = Depends(auth_scheme)):
+def get_user_id(
+  user_id: int, db: Session = Depends(get_db), credentials: HTTPAuthorizationCredentials = Depends(auth_scheme)
+):
   user = db.query(User).filter(User.id == user_id).first()
   if not user:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User not found')
@@ -49,7 +51,12 @@ def get_user_id(user_id: int, db: Session = Depends(get_db), credentials: HTTPAu
 
 # atualizar tudo
 @router.put('/{user_id}', status_code=status.HTTP_200_OK)
-def update_user(user_id: int, user: UserSchema, db: Session = Depends(get_db), credentials: HTTPAuthorizationCredentials = Depends(auth_scheme)):
+def update_user(
+  user_id: int,
+  user: UserSchema,
+  db: Session = Depends(get_db),
+  credentials: HTTPAuthorizationCredentials = Depends(auth_scheme),
+):
   db_user = db.query(User).filter(User.id == user_id).first()
   if not db_user:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User not found')
@@ -63,7 +70,12 @@ def update_user(user_id: int, user: UserSchema, db: Session = Depends(get_db), c
 
 # atualizar
 @router.patch('/{user_id}', status_code=status.HTTP_200_OK)
-def partial_update_user(user_id: int, user: UserSchema, db: Session = Depends(get_db), credentials: HTTPAuthorizationCredentials = Depends(auth_scheme)):
+def partial_update_user(
+  user_id: int,
+  user: UserSchema,
+  db: Session = Depends(get_db),
+  credentials: HTTPAuthorizationCredentials = Depends(auth_scheme),
+):
   db_user = db.query(User).filter(User.id == user_id).first()
   if not db_user:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User not found')

@@ -17,6 +17,7 @@ class UserList(BaseModel):
   username: str
   email: str
 
+
 class LoginSchema(BaseModel):
   username: str
   password: str
