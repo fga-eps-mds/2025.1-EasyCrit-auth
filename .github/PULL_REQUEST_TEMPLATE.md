@@ -6,7 +6,7 @@
 [//]: <> (Para fazer o link de uma issue nos projetos de frontend e backend, deve fazer da seguinte forma: fga-eps-mds/2025.1-EasyCrit-docs#1)
 
 ### 📃 Descrição
-[//]: <> (Descrição do problema solucionado.)
+[//]: <> (Descrição breve do problema solucionado.)
 
 <!--- ### Screenshots (se apropriado): --->
 [//]: <> (Caso seja necessário screenshots, remova o comentário acima.)
