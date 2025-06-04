@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 router = APIRouter(prefix='/users', tags=['users'])
-auth_scheme = HTTPBearer()
+auth_schema = HTTPBearer()
 
 # Criar tabelas ao iniciar a aplicação
 create_tables()
@@ -33,7 +33,7 @@ def create_user(user: UserSchema, db: Session = Depends(get_db)):
 
 # get all
 @router.get('/', response_model=list[UserList])
-def get_users(db: Session = Depends(get_db), credentials: HTTPAuthorizationCredentials = Depends(auth_scheme)):
+def get_users(db: Session = Depends(get_db), credentials: HTTPAuthorizationCredentials = Depends(auth_schema)):
   users = db.query(User).all()
   return users
 
@@ -41,7 +41,7 @@ def get_users(db: Session = Depends(get_db), credentials: HTTPAuthorizationCrede
 # get by id
 @router.get('/{user_id}', response_model=UserList)
 def get_user_id(
-  user_id: int, db: Session = Depends(get_db), credentials: HTTPAuthorizationCredentials = Depends(auth_scheme)
+  user_id: int, db: Session = Depends(get_db), credentials: HTTPAuthorizationCredentials = Depends(auth_schema)
 ):
   user = db.query(User).filter(User.id == user_id).first()
   if not user:
@@ -55,7 +55,7 @@ def update_user(
   user_id: int,
   user: UserSchema,
   db: Session = Depends(get_db),
-  credentials: HTTPAuthorizationCredentials = Depends(auth_scheme),
+  credentials: HTTPAuthorizationCredentials = Depends(auth_schema),
 ):
   db_user = db.query(User).filter(User.id == user_id).first()
   if not db_user:
@@ -74,7 +74,7 @@ def partial_update_user(
   user_id: int,
   user: UserSchema,
   db: Session = Depends(get_db),
-  credentials: HTTPAuthorizationCredentials = Depends(auth_scheme),
+  credentials: HTTPAuthorizationCredentials = Depends(auth_schema),
 ):
   db_user = db.query(User).filter(User.id == user_id).first()
   if not db_user:

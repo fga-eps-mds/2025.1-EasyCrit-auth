@@ -34,6 +34,6 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
       except InvalidTokenError:
         return JSONResponse('Invalid token', status_code=401)
       except Exception:
-        return JSONResponse('Unauthorizad token', status_code=401)
+        return JSONResponse('Internal Server Error', status_code=500)
 
     return await call_next(request)
