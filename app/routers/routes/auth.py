@@ -22,8 +22,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 1440
 def login(payload: LoginSchema, db: Session = Depends(get_db)):
   username = payload.username
   password = payload.password
-  #username = payload.get('username')
-  #password = payload.get('password')
+  # username = payload.get('username')
+  # password = payload.get('password')
   if not username or not password:
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Username and password required')
 
