@@ -3,7 +3,7 @@ from app.models import User
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
 import jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 import os
 from app.schemas import LoginSchema
 
@@ -20,8 +20,10 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 1440
 
 @auth_router.post('/login')
 def login(payload: LoginSchema, db: Session = Depends(get_db)):
-  username = payload.get('username')
-  password = payload.get('password')
+  username = payload.username
+  password = payload.password
+  #username = payload.get('username')
+  #password = payload.get('password')
   if not username or not password:
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Username and password required')
 
@@ -32,7 +34,7 @@ def login(payload: LoginSchema, db: Session = Depends(get_db)):
   to_encode = {
     'username': user.username,
     'email': user.email,
-    'exp': datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
+    'exp': datetime.now(UTC) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
   }
   token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
   return {'access_token': token, 'token_type': 'bearer'}
