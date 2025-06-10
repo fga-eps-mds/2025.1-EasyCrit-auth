@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers.main import api_router
 from dotenv import load_dotenv
+from app.middleware.auth import JWTAuthMiddleware
 
 load_dotenv()
 
@@ -17,5 +18,7 @@ app.add_middleware(
   allow_methods=['*'],
   allow_headers=['*'],
 )
+
+app.add_middleware(JWTAuthMiddleware)
 
 app.include_router(api_router)
