@@ -16,3 +16,8 @@ class UserList(BaseModel):
   id: int
   username: str
   email: str
+
+
+class LoginSchema(BaseModel):
+  username: str
+  password: str
