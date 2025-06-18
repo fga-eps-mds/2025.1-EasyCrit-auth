@@ -13,4 +13,4 @@ COPY ./app ./app
 
 COPY .env .env
 
-EXPOSE ${PORT}
+EXPOSE ${AUTH_PORT}
