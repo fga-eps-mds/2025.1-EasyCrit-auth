@@ -1,14 +1,9 @@
 import pytest
-import sys
-import os
-os.environ['TESTING'] = '1'
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from fastapi.testclient import TestClient
 from app.main import app
 from app.models import User
-from app.database.database import SessionLocal, create_tables
+from app.database.database import SessionLocal
 
-create_tables()
 client = TestClient(app)
 
 

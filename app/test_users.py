@@ -23,7 +23,13 @@ def test_create_user():
     }
 
 def get_access_token():
-    response = client.post('/auth/login', json={'username': 'testuser', 'password': 'testpassword'})
+    response = client.post(
+        "/auth/login", 
+        json={
+            "username": "testuser", 
+            "password": "testpassword"
+        },
+    )
     assert response.status_code == 200
     return response.json()['access_token']
 
