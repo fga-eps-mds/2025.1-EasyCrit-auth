@@ -3,7 +3,7 @@ from app.models import User
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
 import jwt
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta, timezone
 import os
 from app.schemas import LoginSchema
 
@@ -34,7 +34,7 @@ def login(payload: LoginSchema, db: Session = Depends(get_db)):
   to_encode = {
     'username': user.username,
     'email': user.email,
-    'exp': datetime.now(UTC) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
+    'exp': datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
   }
   token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
   return {'access_token': token, 'token_type': 'bearer'}
