@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from string import Template
 import os
 
@@ -13,22 +13,21 @@ if not HOST == 'production':
 DB_URL = Template('postgresql+psycopg2://$user:$password@$host:$port/easycrit')
 
 connString = DB_URL.safe_substitute(user=DB_USER, password=DB_PASSWORD, host=HOST, port=DB_PORT)
-engine = create_engine(connString)
+connect_args = { "check_same_thread": False }
+engine = create_engine(connString, connect_args=connect_args)
 
-SessionLocal = sessionmaker(
+Session = sessionmaker(
   autocommit=False,
   autoflush=False,
   bind=engine,
 )
 
-Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
 
-def get_db():
-  db = SessionLocal()
-  try:
-    yield db
-  finally:
-    db.close()
+def get_session():
+    with Session() as session:
+        yield session
 
-def create_tables():
+def setup_db():
   Base.metadata.create_all(bind=engine)
