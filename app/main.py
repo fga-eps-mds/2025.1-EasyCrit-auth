@@ -10,10 +10,12 @@ load_dotenv()
 
 app = FastAPI()
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    setup_db()
-    yield
+  setup_db()
+  yield
+
 
 # adicionar CORS
 origins = '*'  # Alterar para dominios específicos em produção

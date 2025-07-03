@@ -1,5 +1,5 @@
 from app.schemas import UserSchema, UserList
-from app.database.database import get_session 
+from app.database.database import get_session
 from app.models import User
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
@@ -8,6 +8,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 router = APIRouter(prefix='/users', tags=['users'])
 auth_schema = HTTPBearer()
+
 
 # Cria um novo usuário
 @router.post('/')
@@ -26,11 +27,13 @@ def create_user(user: UserSchema, db: Session = Depends(get_session)):
   except IntegrityError:
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='User already exists')
 
+
 # get all
 @router.get('/', response_model=list[UserList])
 def get_users(db: Session = Depends(get_session), credentials: HTTPAuthorizationCredentials = Depends(auth_schema)):
   users = db.query(User).all()
   return users
+
 
 # get by id
 @router.get('/{user_id}', response_model=UserList)

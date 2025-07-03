@@ -8,12 +8,12 @@ DB_PASSWORD = os.getenv('PASSWORD')
 DB_PORT = os.getenv('DB_PORT')
 HOST = os.getenv('ENV')
 if not HOST == 'production':
-    HOST = 'localhost'
+  HOST = 'localhost'
 
 DB_URL = Template('postgresql+psycopg2://$user:$password@$host:$port/easycrit')
 
 connString = DB_URL.safe_substitute(user=DB_USER, password=DB_PASSWORD, host=HOST, port=DB_PORT)
-connect_args = { "check_same_thread": False }
+connect_args = {'check_same_thread': False}
 engine = create_engine(connString, connect_args=connect_args)
 
 Session = sessionmaker(
@@ -22,12 +22,15 @@ Session = sessionmaker(
   bind=engine,
 )
 
+
 class Base(DeclarativeBase):
-    pass
+  pass
+
 
 def get_session():
-    with Session() as session:
-        yield session
+  with Session() as session:
+    yield session
+
 
 def setup_db():
   Base.metadata.create_all(bind=engine)
