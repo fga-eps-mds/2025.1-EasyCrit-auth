@@ -1,6 +1,7 @@
 from enum import Enum
-from sqlalchemy import Column, Integer, String, DateTime, func
+from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey
 from sqlalchemy import Enum as SQLAlchemyEnum
+from sqlalchemy.orm import relationship
 from app.database.database import Base
 
 
@@ -23,6 +24,12 @@ class User(Base):
   created_at = Column(DateTime, server_default=func.now())
   updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
+  characters = relationship(
+    "Characters",
+    back_populates="user",
+    cascade="all, delete-orphan"
+  )
+
 class Character(Base):
   __tablename__ = 'characters'
 
@@ -30,6 +37,18 @@ class Character(Base):
   name = Column(String)
   biography = Column(String)
   circle_color = Column(String)
-  user_id = Column(Integer)
+  user_id = Column(Integer, ForeignKey('users.id'), nullalble=False)
   created_at = Column(DateTime, server_default=func.now())
   updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+  user = relationship(
+    "User",
+    back_populates="characters"
+  )
+
+class Sessions(Base):
+  __tablename__ = 'sessions'
+
+  id = Column(Integer, primary_key=True, index=True)
+  dungeon_master_id = Column(Integer)
+  player_id = Column(Integer)
