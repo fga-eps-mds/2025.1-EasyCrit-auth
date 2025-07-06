@@ -7,3 +7,4 @@ databases
 pytest
 python-dotenv
 ruff
+passlib[bcrypt]
