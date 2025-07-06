@@ -25,7 +25,13 @@ class User(Base):
   updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
   characters = relationship(
-    "Characters",
+    "Character",
+    back_populates="user",
+    cascade="all, delete-orphan"
+  )
+
+  sessions = relationship(
+    "Session",
     back_populates="user",
     cascade="all, delete-orphan"
   )
@@ -50,5 +56,15 @@ class Sessions(Base):
   __tablename__ = 'sessions'
 
   id = Column(Integer, primary_key=True, index=True)
-  dungeon_master_id = Column(Integer)
-  player_id = Column(Integer)
+  dungeon_master_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+
+  dungeon_master = relationship(
+    "User",
+    back_populates="sessions"
+  )
+
+class PlayersSessions(Base):
+  __tablename__='players_sessions'
+
+  player_id = Column(Integer, ForeignKey('users.id'), primary_key=True, nullable=False)
+  sessions_id = Column(Integer, ForeignKey('sessions.id'), primary_key=True, nullable=False)
