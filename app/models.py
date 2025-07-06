@@ -6,8 +6,9 @@ from app.database.database import Base
 
 
 class UserRoles(Enum):
-  DUNGEON_MASTER = "dungeon master"
-  PLAYER = "player"
+  DUNGEON_MASTER = 'dungeon master'
+  PLAYER = 'player'
+
 
 class User(Base):
   __tablename__ = 'users'
@@ -16,25 +17,14 @@ class User(Base):
   username = Column(String, unique=True, index=True)
   email = Column(String, unique=True, index=True)
   password = Column(String)
-  role = Column(
-    SQLAlchemyEnum(UserRoles),
-    nullalble=False,
-    default=UserRoles.PLAYER
-  )
+  role = Column(SQLAlchemyEnum(UserRoles), nullalble=False, default=UserRoles.PLAYER)
   created_at = Column(DateTime, server_default=func.now())
   updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
-  characters = relationship(
-    "Character",
-    back_populates="user",
-    cascade="all, delete-orphan"
-  )
+  characters = relationship('Character', back_populates='user', cascade='all, delete-orphan')
 
-  sessions = relationship(
-    "Session",
-    back_populates="user",
-    cascade="all, delete-orphan"
-  )
+  sessions = relationship('Session', back_populates='user', cascade='all, delete-orphan')
+
 
 class Character(Base):
   __tablename__ = 'characters'
@@ -47,10 +37,8 @@ class Character(Base):
   created_at = Column(DateTime, server_default=func.now())
   updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
-  user = relationship(
-    "User",
-    back_populates="characters"
-  )
+  user = relationship('User', back_populates='characters')
+
 
 class Sessions(Base):
   __tablename__ = 'sessions'
@@ -58,13 +46,11 @@ class Sessions(Base):
   id = Column(Integer, primary_key=True, index=True)
   dungeon_master_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
-  dungeon_master = relationship(
-    "User",
-    back_populates="sessions"
-  )
+  dungeon_master = relationship('User', back_populates='sessions')
+
 
 class PlayersSessions(Base):
-  __tablename__='players_sessions'
+  __tablename__ = 'players_sessions'
 
   player_id = Column(Integer, ForeignKey('users.id'), primary_key=True, nullable=False)
   sessions_id = Column(Integer, ForeignKey('sessions.id'), primary_key=True, nullable=False)
