@@ -13,11 +13,7 @@ auth_schema = HTTPBearer()
 # Cria um novo usuário
 @router.post('/')
 def create_user(user: UserCreate, db: Session = Depends(get_session)):
-  db_user = User(
-    username=user.username,
-    email=user.email,
-    password=user.password,
-  )
+  db_user = User(username=user.username, email=user.email, password=user.password, role=user.role)
   try:
     db.add(db_user)
     db.commit()
