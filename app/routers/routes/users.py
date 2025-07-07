@@ -1,5 +1,5 @@
 from app.schemas import UserSchema, UserList
-from app.database.database import get_db, create_tables
+from app.database.database import get_session
 from app.models import User
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
@@ -9,13 +9,10 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 router = APIRouter(prefix='/users', tags=['users'])
 auth_schema = HTTPBearer()
 
-# Criar tabelas ao iniciar a aplicação
-create_tables()
-
 
 # Cria um novo usuário
 @router.post('/')
-def create_user(user: UserSchema, db: Session = Depends(get_db)):
+def create_user(user: UserSchema, db: Session = Depends(get_session)):
   db_user = User(
     username=user.username,
     email=user.email,
@@ -33,7 +30,7 @@ def create_user(user: UserSchema, db: Session = Depends(get_db)):
 
 # get all
 @router.get('/', response_model=list[UserList])
-def get_users(db: Session = Depends(get_db), credentials: HTTPAuthorizationCredentials = Depends(auth_schema)):
+def get_users(db: Session = Depends(get_session), credentials: HTTPAuthorizationCredentials = Depends(auth_schema)):
   users = db.query(User).all()
   return users
 
@@ -41,7 +38,7 @@ def get_users(db: Session = Depends(get_db), credentials: HTTPAuthorizationCrede
 # get by id
 @router.get('/{user_id}', response_model=UserList)
 def get_user_id(
-  user_id: int, db: Session = Depends(get_db), credentials: HTTPAuthorizationCredentials = Depends(auth_schema)
+  user_id: int, db: Session = Depends(get_session), credentials: HTTPAuthorizationCredentials = Depends(auth_schema)
 ):
   user = db.query(User).filter(User.id == user_id).first()
   if not user:
@@ -54,7 +51,7 @@ def get_user_id(
 def update_user(
   user_id: int,
   user: UserSchema,
-  db: Session = Depends(get_db),
+  db: Session = Depends(get_session),
   credentials: HTTPAuthorizationCredentials = Depends(auth_schema),
 ):
   db_user = db.query(User).filter(User.id == user_id).first()
@@ -73,7 +70,7 @@ def update_user(
 def partial_update_user(
   user_id: int,
   user: UserSchema,
-  db: Session = Depends(get_db),
+  db: Session = Depends(get_session),
   credentials: HTTPAuthorizationCredentials = Depends(auth_schema),
 ):
   db_user = db.query(User).filter(User.id == user_id).first()

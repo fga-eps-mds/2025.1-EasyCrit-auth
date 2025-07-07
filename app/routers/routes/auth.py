@@ -1,4 +1,4 @@
-from app.database.database import get_db, create_tables
+from app.database.database import get_session
 from app.models import User
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
@@ -10,16 +10,13 @@ from app.schemas import LoginSchema
 
 auth_router = APIRouter(prefix='/auth', tags=['auth'])
 
-create_tables()
-
-
 SECRET_KEY = os.getenv('SECRET_KEY', 'your-secret-key')
 ALGORITHM = 'HS256'
 ACCESS_TOKEN_EXPIRE_MINUTES = 1440
 
 
 @auth_router.post('/login')
-def login(payload: LoginSchema, db: Session = Depends(get_db)):
+def login(payload: LoginSchema, db: Session = Depends(get_session)):
   username = payload.username
   password = payload.password
   # username = payload.get('username')
