@@ -19,7 +19,7 @@ class UserCreate(UserBase):
   role: UserRoles
 
 
-class UserUpdateSchema(UserBase):
+class UserUpdate(UserBase):
   email: str
 
 

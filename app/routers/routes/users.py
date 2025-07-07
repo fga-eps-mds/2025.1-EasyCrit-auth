@@ -1,4 +1,4 @@
-from app.schemas import UserSchema, UserList
+from app.schemas import UserCreate, UserList, UserUpdate
 from app.database.database import get_session
 from app.models import User
 from fastapi import APIRouter, HTTPException, Depends, status
@@ -12,7 +12,7 @@ auth_schema = HTTPBearer()
 
 # Cria um novo usuário
 @router.post('/')
-def create_user(user: UserSchema, db: Session = Depends(get_session)):
+def create_user(user: UserCreate, db: Session = Depends(get_session)):
   db_user = User(
     username=user.username,
     email=user.email,
@@ -50,7 +50,7 @@ def get_user_id(
 @router.put('/{user_id}', status_code=status.HTTP_200_OK)
 def update_user(
   user_id: int,
-  user: UserSchema,
+  user: UserUpdate,
   db: Session = Depends(get_session),
   credentials: HTTPAuthorizationCredentials = Depends(auth_schema),
 ):
@@ -69,7 +69,7 @@ def update_user(
 @router.patch('/{user_id}', status_code=status.HTTP_200_OK)
 def partial_update_user(
   user_id: int,
-  user: UserSchema,
+  user: UserUpdate,
   db: Session = Depends(get_session),
   credentials: HTTPAuthorizationCredentials = Depends(auth_schema),
 ):

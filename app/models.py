@@ -17,7 +17,7 @@ class User(Base):
   username = Column(String, unique=True, index=True)
   email = Column(String, unique=True, index=True)
   password = Column(String)
-  role = Column(SQLAlchemyEnum(UserRoles), nullalble=False, default=UserRoles.PLAYER)
+  role = Column(SQLAlchemyEnum(UserRoles), nullable=False, default=UserRoles.PLAYER)
   created_at = Column(DateTime, server_default=func.now())
   updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
@@ -33,7 +33,7 @@ class Character(Base):
   name = Column(String)
   biography = Column(String)
   circle_color = Column(String)
-  user_id = Column(Integer, ForeignKey('users.id'), nullalble=False)
+  user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
   created_at = Column(DateTime, server_default=func.now())
   updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 

@@ -10,7 +10,7 @@ HOST = os.getenv('ENV')
 if not HOST == 'production':
   HOST = 'postgres'
 
-DB_URL = Template('postgresql+psycopg2://$user:$password@$host:$port/easycrit')
+DB_URL = Template('postgresql+psycopg2://$user:$password@$host:$port/easycrit.main')
 
 connString = DB_URL.safe_substitute(user=DB_USER, password=DB_PASSWORD, host=HOST, port=DB_PORT)
 engine = create_engine(connString, echo=True)
@@ -21,15 +21,12 @@ Session = sessionmaker(
   bind=engine,
 )
 
-
 class Base(DeclarativeBase):
   pass
-
 
 def get_session():
   with Session() as session:
     yield session
-
 
 def setup_db():
   Base.metadata.create_all(engine)
