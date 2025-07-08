@@ -1,4 +1,9 @@
-from app.schemas import UserCreate, User, UserList
+from app.schemas import (
+  UserCreate,
+  User,
+  UserList,
+  UserUpdateSchema,
+)  # CORRIGIDO: Adicionado UserUpdateSchema
 from app.database.database import get_db, create_tables
 from app.models import User as UserModel
 from fastapi import APIRouter, HTTPException, Depends, status
@@ -33,7 +38,12 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
 
   hashed_password = get_password_hash(user.password)
 
-  db_user = UserModel(username=user.username, email=user.email, password=hashed_password, role=user.role)
+  db_user = UserModel(
+    username=user.username,
+    email=user.email,
+    password=hashed_password,
+    role=user.role,
+  )
   try:
     db.add(db_user)
     db.commit()
@@ -42,10 +52,16 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     return db_user
 
   except IntegrityError:
-    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Integrity error creating user')
+    raise HTTPException(
+      status_code=status.HTTP_400_BAD_REQUEST,
+      detail='Integrity error creating user',
+    )
   except Exception as e:
     db.rollback()
-    raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f'An error occurred: {e}')
+    raise HTTPException(
+      status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+      detail=f'An error occurred: {e}',
+    )
 
 
 # get all
@@ -86,12 +102,10 @@ def partial_update_user(user_id: int, user: UserUpdateSchema, db: Session = Depe
   if not db_user:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User not found')
 
-  if user.username is not None:
-    db_user.username = user.username
-  if user.email is not None:
-    db_user.email = user.email
-  if user.role is not None:
-    db_user.role = user.role
+  # Use model_dump(exclude_unset=True) para obter apenas os campos fornecidos na requisição
+  update_data = user.model_dump(exclude_unset=True)
+  for key, value in update_data.items():
+    setattr(db_user, key, value)
 
   db.commit()
   db.refresh(db_user)
