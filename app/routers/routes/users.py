@@ -1,18 +1,20 @@
 from app.schemas import UserCreate, User, UserList
 from app.database.database import get_db, create_tables
-from app.models import User as UserModel 
+from app.models import User as UserModel
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from passlib.context import CryptContext 
+from passlib.context import CryptContext
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+
 
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+  return pwd_context.hash(password)
+
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+  return pwd_context.verify(plain_password, hashed_password)
 
 
 router = APIRouter(prefix='/users', tags=['users'])
@@ -23,20 +25,15 @@ create_tables()
 
 
 # Cria um novo usuário
-@router.post('/', response_model=User) 
-def create_user(user: UserCreate, db: Session = Depends(get_db)): 
+@router.post('/', response_model=User)
+def create_user(user: UserCreate, db: Session = Depends(get_db)):
   existing_user = db.query(UserModel).filter(UserModel.email == user.email).first()
   if existing_user:
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='User already exists')
 
   hashed_password = get_password_hash(user.password)
 
-  db_user = UserModel( 
-    username=user.username,
-    email=user.email,
-    password=hashed_password, 
-    role=user.role
-  )
+  db_user = UserModel(username=user.username, email=user.email, password=hashed_password, role=user.role)
   try:
     db.add(db_user)
     db.commit()
@@ -52,16 +49,16 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
 
 
 # get all
-@router.get('/', response_model=list[UserList]) 
+@router.get('/', response_model=list[UserList])
 def get_users(db: Session = Depends(get_db)):
-  users = db.query(UserModel).all() 
+  users = db.query(UserModel).all()
   return users
 
 
 # get by id
-@router.get('/{user_id}', response_model=User) 
+@router.get('/{user_id}', response_model=User)
 def get_user_id(user_id: int, db: Session = Depends(get_db)):
-  user = db.query(UserModel).filter(UserModel.id == user_id).first() 
+  user = db.query(UserModel).filter(UserModel.id == user_id).first()
   if not user:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User not found')
   return user
@@ -89,12 +86,11 @@ def partial_update_user(user_id: int, user: UserUpdateSchema, db: Session = Depe
   if not db_user:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User not found')
 
-
   if user.username is not None:
     db_user.username = user.username
   if user.email is not None:
     db_user.email = user.email
-  if user.role is not None: 
+  if user.role is not None:
     db_user.role = user.role
 
   db.commit()
