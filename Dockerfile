@@ -1,6 +1,7 @@
 ARG PORT
 ARG USER
 ARG PASSWORD
+ARG DB_NAME
 ARG ENV
 ARG DB_PORT
 FROM python:3.12-alpine AS base
@@ -15,6 +16,7 @@ FROM base as dev
 ENV PORT=${PORT}
 ENV USER=${USER}
 ENV PASSWORD=${PASSWORD}
+ENV DB_NAME=${DB_NAME}
 ENV ENV=${ENV}
 ENV DB_PORT=${DB_PORT}
 CMD fastapi dev main.py --host 0.0.0.0 --port $PORT
