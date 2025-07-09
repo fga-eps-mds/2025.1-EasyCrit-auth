@@ -11,23 +11,21 @@ class LoginSchema(BaseModel):
 # Base for all other user schemas
 class UserBase(BaseModel):
   username: str
-  password: str
+  email: str
 
+class UserPublic(UserBase):
+  id: int
+  role: UserRoles
 
 class UserCreate(UserBase):
-  email: str
+  password: str
   role: UserRoles
-
 
 class UserUpdate(UserBase):
-  email: str
+  password: str
 
-
-class UserList(UserBase):
-  id: int
-  email: str
-  role: UserRoles
-
+class UserList(BaseModel):
+  users: list[UserPublic]
 
 # TODO: Characters
 class CharacterBase(BaseModel):

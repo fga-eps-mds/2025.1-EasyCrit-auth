@@ -1,4 +1,4 @@
-from fastapi import Request
+from fastapi import Request, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from starlette.middleware.base import BaseHTTPMiddleware
 import jwt
@@ -30,10 +30,10 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
         payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=['HS256'])
         request.state.user = payload
       except ExpiredSignatureError:
-        return JSONResponse('Expired token', status_code=401)
+        return JSONResponse('Expired token', status_code=status.HTTP_401_UNAUTHORIZED)
       except InvalidTokenError:
-        return JSONResponse('Invalid token', status_code=401)
+        return JSONResponse('Invalid token', status_code=status.HTTP_401_UNAUTHORIZED)
       except Exception:
-        return JSONResponse('Internal Server Error', status_code=500)
+        return JSONResponse('Internal Server Error', status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return await call_next(request)
