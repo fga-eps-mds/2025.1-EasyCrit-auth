@@ -8,13 +8,14 @@ from app.database.database import setup_db
 
 load_dotenv()
 
-app = FastAPI()
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
   setup_db()
   yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 # adicionar CORS

@@ -1,20 +1,20 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from string import Template
 import os
 
 DB_USER = os.getenv('USER')
 DB_PASSWORD = os.getenv('PASSWORD')
+DB_NAME = os.getenv('DB_NAME')
 DB_PORT = os.getenv('DB_PORT')
 HOST = os.getenv('ENV')
 if not HOST == 'production':
-  HOST = 'localhost'
+  HOST = 'postgres'
 
-DB_URL = Template('postgresql+psycopg2://$user:$password@$host:$port/easycrit')
+DB_URL = Template('postgresql+psycopg2://$user:$password@$host:$port/$db_name')
 
-connString = DB_URL.safe_substitute(user=DB_USER, password=DB_PASSWORD, host=HOST, port=DB_PORT)
-connect_args = {'check_same_thread': False}
-engine = create_engine(connString, connect_args=connect_args)
+connString = DB_URL.safe_substitute(user=DB_USER, password=DB_PASSWORD, host=HOST, port=DB_PORT, db_name=DB_NAME)
+engine = create_engine(connString, echo=True)
 
 SessionLocal = sessionmaker(
   autocommit=False,
