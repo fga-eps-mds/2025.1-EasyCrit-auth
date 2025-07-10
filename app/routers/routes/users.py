@@ -109,3 +109,24 @@ def partial_update_user(
   db.commit()
   db.refresh(db_user)
   return db_user
+
+@router.delete(
+  '/{user_id}', dependencies=[Depends(check_auth_token)], status_code=status.HTTP_204_NO_CONTENT
+)
+def delete_user(
+    user_id: int,
+    db: Session = Depends(get_session)
+):
+  stmt = select(User).where(User.id == user_id)
+  db_user = db.scalar(stmt)
+
+  if not db_user:
+    raise HTTPException(
+      status_code=status.HTTP_404_NOT_FOUND,
+      detail='User not found'
+    )
+
+  db.delete(db_user)
+  db.commit()
+
+  return {'message': 'User deleted successfully'}
