@@ -3,6 +3,7 @@ from app.middleware.auth import create_access_token
 from app.models import User
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
+
 from sqlalchemy import select
 from app.schemas import LoginSchema
 

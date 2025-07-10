@@ -16,7 +16,7 @@ DB_URL = Template('postgresql+psycopg2://$user:$password@$host:$port/$db_name')
 connString = DB_URL.safe_substitute(user=DB_USER, password=DB_PASSWORD, host=HOST, port=DB_PORT, db_name=DB_NAME)
 engine = create_engine(connString, echo=True)
 
-Session = sessionmaker(
+SessionLocal = sessionmaker(
   autocommit=False,
   autoflush=False,
   bind=engine,
@@ -27,14 +27,13 @@ class Base(DeclarativeBase):
   pass
 
 
-def get_session():
-  with Session() as session:
-    yield session
+def get_db():
+  db = SessionLocal()
+  try:
+    yield db
+  finally:
+    db.close()
 
 
-def setup_db():
-  with engine.connect() as conn:
-    conn.execute(text('CREATE SCHEMA IF NOT EXISTS main'))
-    conn.commit()
-
-  Base.metadata.create_all(engine)
+def create_tables():
+  Base.metadata.create_all(bind=engine)
