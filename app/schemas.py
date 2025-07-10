@@ -13,19 +13,26 @@ class UserBase(BaseModel):
   username: str
   email: str
 
+
 class UserPublic(UserBase):
   id: int
   role: UserRoles
+
 
 class UserCreate(UserBase):
   password: str
   role: UserRoles
 
-class UserUpdate(UserBase):
-  password: str
+
+class UserUpdate(BaseModel):
+  username: str | None = None
+  email: str | None = None
+  password: str | None = None
+
 
 class UserList(BaseModel):
   users: list[UserPublic]
+
 
 # TODO: Characters
 class CharacterBase(BaseModel):

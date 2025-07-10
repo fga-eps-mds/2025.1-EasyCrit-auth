@@ -1,6 +1,7 @@
 from app.schemas import UserCreate, UserList, UserUpdate, UserPublic
 from app.database.database import get_session
 from app.models import User
+from app.middleware.auth import check_auth_token
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -20,16 +21,14 @@ def create_user(user: UserCreate, db: Session = Depends(get_session)):
 
   if db_user and db_user.username == user.username:
     raise HTTPException(
-      status_code=status.HTTP_400_BAD_REQUEST,
-      detail='A user with that username already exists on databse.'
+      status_code=status.HTTP_400_BAD_REQUEST, detail='A user with that username already exists on databse.'
     )
-    
+
   if db_user and db_user.email == user.email:
     raise HTTPException(
-      status_code=status.HTTP_400_BAD_REQUEST,
-      detail='A user with that email already exists on databse.'
+      status_code=status.HTTP_400_BAD_REQUEST, detail='A user with that email already exists on databse.'
     )
-    
+
   db_user = User(username=user.username, email=user.email, password=hash_password(user.password), role=user.role)
 
   db.add(db_user)
@@ -39,40 +38,44 @@ def create_user(user: UserCreate, db: Session = Depends(get_session)):
 
 
 # get all
-@router.get('/', response_model=UserList)
+@router.get('/', response_model=UserList, dependencies=[Depends(check_auth_token)])
 def get_users(
-    skip: int = 0,
-    limit: int = 100,
-    db: Session = Depends(get_session),
-    credentials: HTTPAuthorizationCredentials = Depends(auth_schema)
+  skip: int = 0,
+  limit: int = 100,
+  db: Session = Depends(get_session),
 ):
   try:
     stmt = select(User).offset(skip).limit(limit).order_by(User.id)
     res = db.scalars(stmt).all()
-    return { 'users': res }
+    return {'users': res}
   except IntegrityError:
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
+
 # get by id
-@router.get('/{user_id}', response_model=UserPublic)
-def get_user_id(
-  user_id: int, db: Session = Depends(get_session), credentials: HTTPAuthorizationCredentials = Depends(auth_schema)
-):
-  user = db.query(User).filter(User.id == user_id).first()
+@router.get(
+  '/{user_id}', response_model=UserPublic, dependencies=[Depends(check_auth_token)], status_code=status.HTTP_200_OK
+)
+def get_user_id(user_id: int, db: Session = Depends(get_session)):
+  stmt = select(User).where(User.id == user_id)
+  user = db.scalar(stmt)
   if not user:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User not found')
   return user
 
 
 # atualizar tudo
-@router.put('/{user_id}', status_code=status.HTTP_200_OK)
+@router.put(
+  '/{user_id}', response_model=UserPublic, dependencies=[Depends(check_auth_token)], status_code=status.HTTP_200_OK
+)
 def update_user(
   user_id: int,
   user: UserUpdate,
   db: Session = Depends(get_session),
   credentials: HTTPAuthorizationCredentials = Depends(auth_schema),
 ):
-  db_user = db.query(User).filter(User.id == user_id).first()
+  stmt = select(User).where(User.id == user_id)
+  db_user = db.scalar(stmt)
   if not db_user:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User not found')
 
@@ -84,14 +87,16 @@ def update_user(
 
 
 # atualizar
-@router.patch('/{user_id}', status_code=status.HTTP_200_OK)
+@router.patch(
+  '/{user_id}', response_model=UserPublic, dependencies=[Depends(check_auth_token)], status_code=status.HTTP_200_OK
+)
 def partial_update_user(
   user_id: int,
   user: UserUpdate,
   db: Session = Depends(get_session),
-  credentials: HTTPAuthorizationCredentials = Depends(auth_schema),
 ):
-  db_user = db.query(User).filter(User.id == user_id).first()
+  stmt = select(User).where(User.id == user_id)
+  db_user = db.scalar(stmt)
   if not db_user:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User not found')
 
@@ -99,6 +104,8 @@ def partial_update_user(
     db_user.username = user.username
   if user.email:
     db_user.email = user.email
+  if user.password:
+    db_user.password = user.password
   db.commit()
   db.refresh(db_user)
   return db_user

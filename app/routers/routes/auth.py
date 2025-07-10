@@ -1,37 +1,32 @@
 from app.database.database import get_session
+from app.middleware.auth import create_access_token
 from app.models import User
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
-import jwt
-from datetime import datetime, timedelta, UTC
-import os
+from sqlalchemy import select
 from app.schemas import LoginSchema
 
+from app.utils.hash import check_password
 
-auth_router = APIRouter(prefix='/auth', tags=['auth'])
+router = APIRouter(prefix='/auth', tags=['auth'])
 
-SECRET_KEY = os.getenv('SECRET_KEY', 'your-secret-key')
-ALGORITHM = 'HS256'
-ACCESS_TOKEN_EXPIRE_MINUTES = 1440
+INVALID_LOGIN_EXCEPTION = HTTPException(
+  status_code=status.HTTP_401_UNAUTHORIZED,
+  detail='Incorrect user or password',
+)
 
 
-@auth_router.post('/login')
+@router.post('/login', status_code=status.HTTP_200_OK)
 def login(payload: LoginSchema, db: Session = Depends(get_session)):
-  username = payload.username
-  password = payload.password
-  # username = payload.get('username')
-  # password = payload.get('password')
-  if not username or not password:
-    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Username and password required')
+  stmt = select(User).where(User.username == payload.username)
+  user = db.scalar(stmt)
 
-  user = db.query(User).filter(User.username == username).first()
-  if not user or user.password != password:
-    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid credentials')
+  if not user:
+    raise INVALID_LOGIN_EXCEPTION
 
-  to_encode = {
-    'username': user.username,
-    'email': user.email,
-    'exp': datetime.now(UTC) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
-  }
-  token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-  return {'access_token': token, 'token_type': 'bearer'}
+  if not check_password(payload.password, user.password):
+    raise INVALID_LOGIN_EXCEPTION
+
+  token = create_access_token(data={'sub': user.username})
+
+  return {'access_token': token, 'type': 'Bearer'}

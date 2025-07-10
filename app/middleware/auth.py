@@ -1,39 +1,52 @@
-from fastapi import Request, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from starlette.middleware.base import BaseHTTPMiddleware
-import jwt
-from jwt import ExpiredSignatureError, InvalidTokenError
+from datetime import datetime, timedelta
 import os
-from fastapi.responses import JSONResponse
+from zoneinfo import ZoneInfo
+from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends, HTTPException, status
+from jwt import encode, decode, DecodeError
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
-SECRET_KEY = os.getenv('SECRET_KEY', 'your-secret-key')
+from app.database.database import get_session
+from app.models import User
+
+SECRET_KEY = os.getenv('SECRET_KEY')
+ALGORITHM = 'HS256'
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24h
+
+INVALID_CREDENTIALS = HTTPException(
+  status_code=status.HTTP_400_BAD_REQUEST,
+  detail='Invalid credentials in request body',
+  headers={'WWW-authenticate': 'Bearer'},
+)
+UNAUTHORIZED_CREDENTIALS = HTTPException(
+  status_code=status.HTTP_401_UNAUTHORIZED, detail='Unauthorized user', headers={'WWW-authenticate': 'Bearer'}
+)
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='auth/login')
 
 
-class JWTAuthMiddleware(BaseHTTPMiddleware):
-  def __init__(self, app):
-    super().__init__(app)
-    self.require_auth = [
-      ('GET', '/users'),
-      ('PUT', '/users'),
-      ('PATCH', '/users'),
-    ]
-    self.security = HTTPBearer()
+def create_access_token(data: dict):
+  to_encode = data.copy()
+  expire = datetime.now(tz=ZoneInfo('UTC')) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
-  async def dispatch(self, request: Request, call_next):
-    needs_auth = any(
-      request.method == method and request.url.path.startswith(path) for method, path in self.require_auth
-    )
+  to_encode.update({'exp': expire})
+  encoded_jwt = encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+  return encoded_jwt
 
-    if needs_auth:
-      try:
-        credentials: HTTPAuthorizationCredentials = await self.security(request)
-        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=['HS256'])
-        request.state.user = payload
-      except ExpiredSignatureError:
-        return JSONResponse('Expired token', status_code=status.HTTP_401_UNAUTHORIZED)
-      except InvalidTokenError:
-        return JSONResponse('Invalid token', status_code=status.HTTP_401_UNAUTHORIZED)
-      except Exception:
-        return JSONResponse('Internal Server Error', status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    return await call_next(request)
+def check_auth_token(token: str = Depends(oauth2_scheme), db: Session = Depends(get_session)):
+  try:
+    payload = decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    username = payload.get('sub')
+    if not username:
+      raise INVALID_CREDENTIALS
+
+    stmt = select(User).where(User.username == username)
+    user = db.scalar(stmt)
+
+    if not user:
+      raise UNAUTHORIZED_CREDENTIALS
+
+  except DecodeError:
+    raise DecodeError
