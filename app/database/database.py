@@ -27,7 +27,7 @@ class Base(DeclarativeBase):
   pass
 
 
-def get_db():
+def get_session():
   db = SessionLocal()
   try:
     yield db
@@ -35,5 +35,9 @@ def get_db():
     db.close()
 
 
-def create_tables():
-  Base.metadata.create_all(bind=engine)
+def setup_db():
+  with engine.connect() as conn:
+    conn.execute(text('CREATE SCHEMA IF NOT EXISTS main'))
+    conn.commit()
+
+  Base.metadata.create_all(engine)
