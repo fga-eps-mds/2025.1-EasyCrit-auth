@@ -38,28 +38,28 @@ class UserList(BaseModel):
 
 
 class CharacterBase(BaseModel):
-    name: str
-    biography: str | None = None
-    circle_color: str | None = None
+  name: str
+  biography: str | None = None
+  circle_color: str | None = None
 
 
 class CharacterCreate(CharacterBase):
-    pass
+  pass
 
 
 class CharacterUpdate(BaseModel):
-    name: str | None = None
-    biography: str | None = None
-    circle_color: str | None = None
+  name: str | None = None
+  biography: str | None = None
+  circle_color: str | None = None
 
 
 class CharacterPublic(CharacterBase):
-    id: int
-    user_id: int 
+  id: int
+  user_id: int
 
-    class Config:
-        from_attributes = True
+  class Config:
+    from_attributes = True
 
 
 class CharacterList(BaseModel):
-    characters: list[CharacterPublic]
+  characters: list[CharacterPublic]
