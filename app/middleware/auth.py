@@ -35,7 +35,7 @@ def create_access_token(data: dict):
   return encoded_jwt
 
 
-def check_auth_token(token: str = Depends(oauth2_scheme), db: Session = Depends(get_session)):
+def check_auth_token(token: str = Depends(oauth2_scheme), db: Session = Depends(get_session)) -> User:
   try:
     payload = decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     username = payload.get('sub')
@@ -47,6 +47,7 @@ def check_auth_token(token: str = Depends(oauth2_scheme), db: Session = Depends(
 
     if not user:
       raise UNAUTHORIZED_CREDENTIALS
-
+  
+    return user
   except DecodeError:
     raise DecodeError
