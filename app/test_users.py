@@ -8,22 +8,12 @@ client = TestClient(app)
 def test_create_user():
   response = client.post(
     '/users',
-    json={
-      'username': 'testuser',
-      'email': 'testemail',
-      'password': 'testpassword',
-      'role': 'player'
-    },
+    json={'username': 'testuser', 'email': 'testemail', 'password': 'testpassword', 'role': 'player'},
   )
   assert response.status_code == 201
   global created_user_id
   created_user_id = response.json()['id']
-  assert response.json() == {
-    'username': 'testuser',
-    'id': created_user_id,
-    'email': 'testemail',
-    'role': 'player'
-  }
+  assert response.json() == {'username': 'testuser', 'id': created_user_id, 'email': 'testemail', 'role': 'player'}
 
 
 def get_access_token():
