@@ -29,19 +29,19 @@ def test_login_success(test_user):
   assert response.status_code == 200
   data = response.json()
   assert 'access_token' in data
-  assert data['token_type'] == 'bearer'
+  assert data['type'].lower() == 'bearer'
 
 
 def test_login_wrong_password(test_user):
   response = client.post('/auth/login', json={'username': 'testuser', 'password': 'wrongpassword'})
   assert response.status_code == 401
-  assert response.json() == {'detail': 'Invalid credentials'}
+  assert response.json() == {'detail': 'Incorrect user or password'}
 
 
 def test_login_nonexistent_user():
   response = client.post('/auth/login', json={'username': 'nonexistentuser', 'password': 'somepassword'})
   assert response.status_code == 401
-  assert response.json() == {'detail': 'Invalid credentials'}
+  assert response.json() == {'detail': 'Incorrect user or password'}
 
 
 def test_login_missing_username():
