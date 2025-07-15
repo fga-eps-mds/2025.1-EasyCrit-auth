@@ -47,7 +47,7 @@ def check_auth_token(token: str = Depends(oauth2_scheme), db: Session = Depends(
 
     if not user:
       raise UNAUTHORIZED_CREDENTIALS
-  
+
     return user
   except DecodeError:
     raise DecodeError
