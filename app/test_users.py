@@ -12,14 +12,17 @@ def test_create_user():
       'username': 'testuser',
       'email': 'testemail',
       'password': 'testpassword',
+      'role': 'player'
     },
   )
-  assert response.status_code == 200
+  assert response.status_code == 201
+  global created_user_id
+  created_user_id = response.json()['id']
   assert response.json() == {
     'username': 'testuser',
-    'id': 1,
+    'id': created_user_id,
     'email': 'testemail',
-    'password': 'testpassword',
+    'role': 'player'
   }
 
 
@@ -44,7 +47,7 @@ def test_get_users():
 def test_get_user_id():
   token = get_access_token()
   response = client.get(
-    '/users/1',
+    f'/users/{created_user_id}',
     headers={'Authorization': f'Bearer {token}'},
   )
   assert response.status_code == 200
@@ -53,7 +56,7 @@ def test_get_user_id():
 def test_update_user():
   token = get_access_token()
   response = client.put(
-    '/users/1',
+    f'/users/{created_user_id}',
     headers={'Authorization': f'Bearer {token}'},
     json={
       'username': 'testuser',
@@ -67,7 +70,7 @@ def test_update_user():
 def partial_update_user():
   token = get_access_token()
   response = client.patch(
-    '/users/1',
+    f'/users/{created_user_id}',
     headers={'Authorization': f'Bearer {token}'},
     json={
       'username': 'testuser',
