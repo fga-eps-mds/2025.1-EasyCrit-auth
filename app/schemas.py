@@ -34,9 +34,32 @@ class UserList(BaseModel):
   users: list[UserPublic]
 
 
-# TODO: Characters
+# Character
+
+
 class CharacterBase(BaseModel):
   name: str
-  biography: str
-  circle_color: str
-  user_id: str
+  biography: str | None = None
+  circle_color: str | None = None
+
+
+class CharacterCreate(CharacterBase):
+  pass
+
+
+class CharacterUpdate(BaseModel):
+  name: str | None = None
+  biography: str | None = None
+  circle_color: str | None = None
+
+
+class CharacterPublic(CharacterBase):
+  id: int
+  user_id: int
+
+  class Config:
+    from_attributes = True
+
+
+class CharacterList(BaseModel):
+  characters: list[CharacterPublic]
