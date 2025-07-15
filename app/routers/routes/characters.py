@@ -22,7 +22,7 @@ def create_character(
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='You already have a character with this name.')
 
   db_character = Character(
-    name=character.name, biography=character.biography, circle_color=character.circle_color, user_id=character.user_id
+    name=character.name, biography=character.biography, circle_color=character.circle_color, user_id=current_user.id
   )
 
   db.add(db_character)

@@ -44,7 +44,7 @@ class CharacterBase(BaseModel):
 
 
 class CharacterCreate(CharacterBase):
-  user_id: int
+  pass
 
 
 class CharacterUpdate(BaseModel):
