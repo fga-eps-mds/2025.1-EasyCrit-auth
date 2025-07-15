@@ -15,13 +15,15 @@ router = APIRouter(prefix='/characters', tags=['characters'])
 def create_character(
   character: CharacterCreate, db: Session = Depends(get_session), current_user: User = Depends(check_auth_token)
 ):
-  stmt = select(Character).where(Character.name == character.name, Character.owner_id == current_user.id)
+  stmt = select(Character).where(Character.name == character.name, Character.user_id == current_user.id)
   db_character = db.scalar(stmt)
 
   if db_character:
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='You already have a character with this name.')
 
-  db_character = Character(**character.model_dump(), owner_id=current_user.id)
+  db_character = Character(
+    name=character.name, biography=character.biography, circle_color=character.circle_color, user_id=character.user_id
+  )
 
   db.add(db_character)
   db.commit()
@@ -68,7 +70,7 @@ def partial_update_character(
   if not db_character:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Character not found')
 
-  if db_character.owner_id != current_user.id:
+  if db_character.user_id != current_user.id:
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Access denied')
 
   for key, value in character.model_dump(exclude_unset=True).items():
@@ -90,10 +92,10 @@ def delete_character(
   if not db_character:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Character not found')
 
-  if db_character.owner_id != current_user.id:
+  if db_character.user_id != current_user.id:
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Access denied')
 
   db.delete(db_character)
   db.commit()
 
-  return None
+  return {'message': 'character deleted successfully'}
